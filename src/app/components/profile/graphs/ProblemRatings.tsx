@@ -6,11 +6,9 @@ const ProblemRatingsGraph = () => {
   const filters = useStore(state => state.filters);
   const [activeTab, setActiveTab] = useState<'solved' | 'unsolved'>('solved');
 
-  // Get real data from filters
   const getRatingData = () => {
     if (filters.status !== 'success') return {};
     
-    // Debug log the filter state
     console.log('Filter state:', {
       solvedCount: filters.data.byStatus.solved.size,
       unsolvedCount: filters.data.byStatus.unsolved.size,

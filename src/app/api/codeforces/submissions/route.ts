@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { mapApiVerdict } from '@/types/codeforces/Submission';
 
 const CF_API_BASE = 'https://codeforces.com/api';
 
@@ -21,7 +22,13 @@ export async function GET(request: Request) {
       throw new Error(data.comment || 'Failed to fetch submissions');
     }
 
-    return NextResponse.json(data.result);
+    // Map the API verdicts to our enum values
+    const processedSubmissions = data.result.map((submission: any) => ({
+      ...submission,
+      verdict: submission.verdict ? mapApiVerdict(submission.verdict) : undefined
+    }));
+
+    return NextResponse.json(processedSubmissions);
   } catch (error) {
     return NextResponse.json(
       { error: error.message || 'Internal server error' },

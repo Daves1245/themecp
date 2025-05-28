@@ -58,8 +58,11 @@ function getRatingBucket(rating: number): number {
 }
 
 export function initializeFilters(submissions: Submission[], contests: Contest[]): FilteredProblems {
+
+  console.log("Initialize filters called with submissions: ", submissions);
+
   console.time('filter-initialization');
-  
+
   const filters: FilteredProblems = {
     byStatus: {
       solved: new Set(),
@@ -95,7 +98,7 @@ export function initializeFilters(submissions: Submission[], contests: Contest[]
       continue;
     }
 
-    const problemId = submission.contestId 
+    const problemId = submission.contestId
       ? `${submission.contestId}-${submission.problem.index}`
       : `${submission.problem.index}`;
 
@@ -119,15 +122,17 @@ export function initializeFilters(submissions: Submission[], contests: Contest[]
     .sort((a, b) => a.creationTimeSeconds - b.creationTimeSeconds);
 
   for (const submission of sortedSubmissions) {
-    const problemId = submission.contestId 
+    const problemId = submission.contestId
       ? `${submission.contestId}-${submission.problem.index}`
       : `${submission.problem.index}`;
 
     const status = processedProblems.get(problemId)!;
-    
+
     status.attempts++;
     status.lastSubmission = submission.creationTimeSeconds;
     status.lastVerdict = submission.verdict;
+
+    console.log("Comparing verdict to verdict OK: ", submission.verdict === Verdict.OK);
 
     if (submission.verdict === Verdict.OK && !status.solved) {
       status.solved = true;
@@ -137,7 +142,7 @@ export function initializeFilters(submissions: Submission[], contests: Contest[]
       if (submission.contestId) {
         const contestTime = contestTimes.get(submission.contestId);
         if (contestTime) {
-          status.duringContest = 
+          status.duringContest =
             submission.creationTimeSeconds >= contestTime.start &&
             submission.creationTimeSeconds <= contestTime.end;
         }
@@ -145,9 +150,9 @@ export function initializeFilters(submissions: Submission[], contests: Contest[]
 
       const date = getDateString(submission.creationTimeSeconds);
       if (!filters.byDate[date]) {
-        filters.byDate[date] = { 
+        filters.byDate[date] = {
           problems: new Set(),
-          maxRating: 0 
+          maxRating: 0
         };
       }
       filters.byDate[date].problems.add(problemId);
